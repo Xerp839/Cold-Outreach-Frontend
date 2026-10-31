@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { api, ApiError, getKey, setKey } from "./api";
 import Drafts from "./pages/Drafts";
 import Jobs from "./pages/Jobs";
+import LinkedIn from "./pages/LinkedIn";
 import Overview from "./pages/Overview";
 import Providers from "./pages/Providers";
 import Runs from "./pages/Runs";
@@ -9,6 +10,7 @@ import Runs from "./pages/Runs";
 const TABS: [string, string][] = [
   ["overview", "Overview"],
   ["drafts", "Drafts"],
+  ["linkedin", "LinkedIn"],
   ["jobs", "Jobs"],
   ["runs", "Runs & errors"],
   ["providers", "Providers"],
@@ -93,6 +95,7 @@ export default function App() {
       <main className="content">
         {tab === "overview" && <Overview goTo={setTab} />}
         {tab === "drafts" && <Drafts />}
+        {tab === "linkedin" && <LinkedIn />}
         {tab === "jobs" && <Jobs />}
         {tab === "runs" && <Runs />}
         {tab === "providers" && <Providers />}

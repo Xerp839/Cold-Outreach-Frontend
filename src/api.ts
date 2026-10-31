@@ -73,6 +73,7 @@ export interface Stats {
   jobs_by_status: Record<string, number>;
   reply_rate: number | null;
   total_drafts: number;
+  linkedin_by_status: Record<string, number>;
   errors_last_7d: number;
   last_run: Run | null;
 }
@@ -116,6 +117,22 @@ export interface Draft {
   job: { id: number; title: string; company: string; url: string; score: number | null };
 }
 
+export type LinkedInStatus = "pending" | "sent" | "replied" | "skipped";
+
+export interface LinkedInNote {
+  id: number;
+  status: LinkedInStatus;
+  note: string;
+  created_at: string;
+  status_changed_at: string | null;
+  llm_provider: string | null;
+  max_chars: number;
+  company_url: string;
+  people_url: string;
+  company_page_known: boolean;
+  job: { id: number; title: string; company: string; url: string; score: number | null; status: string; location: string | null };
+}
+
 export interface Providers {
   configured: Record<string, boolean>;
   hunter_account: { used: number | null; available: number | null; reset_date: string | null } | null;
@@ -132,6 +149,9 @@ export const api = {
   drafts: (status?: string) => request<Draft[]>(`/drafts${status ? `?status=${status}` : ""}`),
   setDraftStatus: (id: number, status: DraftStatus) =>
     request<Draft>(`/drafts/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  linkedin: (status?: string) => request<LinkedInNote[]>(`/linkedin${status ? `?status=${status}` : ""}`),
+  setLinkedInStatus: (id: number, status: LinkedInStatus) =>
+    request<LinkedInNote>(`/linkedin/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   jobs: (params: Record<string, string>) => request<Job[]>(`/jobs?${new URLSearchParams(params)}`),
   setJobStatus: (id: number, status: string) =>
     request<Job>(`/jobs/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),

@@ -20,6 +20,7 @@ const STAT_LABELS: Record<string, string> = {
   good_fit: "Good fit",
   drafted: "Drafted",
   no_contact: "No contact",
+  linkedin_notes: "LinkedIn notes",
   fetch_failures: "Source failures",
 };
 
@@ -53,6 +54,7 @@ export default function Overview({ goTo }: { goTo: (tab: string) => void }) {
   if (!data) return <Loading error={error} loading={loading} />;
   const run = data.last_run;
   const waiting = data.drafts_by_status["drafted"] ?? 0;
+  const linkedinWaiting = data.linkedin_by_status["pending"] ?? 0;
   const sent = (data.drafts_by_status["sent"] ?? 0) + (data.drafts_by_status["replied"] ?? 0);
 
   return (
@@ -68,6 +70,10 @@ export default function Overview({ goTo }: { goTo: (tab: string) => void }) {
         <button className="card stat clickable" onClick={() => goTo("drafts")}>
           <div className="stat-label">Waiting for you to send</div>
           <div className="stat-value">{waiting}</div>
+        </button>
+        <button className="card stat clickable" onClick={() => goTo("linkedin")}>
+          <div className="stat-label">LinkedIn notes to send</div>
+          <div className="stat-value">{linkedinWaiting}</div>
         </button>
         <div className="card stat">
           <div className="stat-label">Sent → replied</div>

@@ -26,9 +26,12 @@ function NoteCard({ n, onChange }: { n: LinkedInNote; onChange: (n: LinkedInNote
   const [body, setBody] = useState(n.note);
   const [copied, setCopied] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<"connection" | "message">("message");
 
-  const full = `Hi ${name.trim() || "there"}, ${body.trim()}`;
-  const over = full.length > n.max_chars;
+  const links = [n.resume_url && `Resume: ${n.resume_url}`, n.portfolio_url && `Portfolio: ${n.portfolio_url}`]
+    .filter(Boolean).join("\n");
+  const full = `${name.trim() ? `Hi ${name.trim()},` : "Hi,"} ${body.trim()}${mode === "message" && links ? `\n\n${links}` : ""}`;
+  const over = mode === "connection" && full.length > n.max_chars;
 
   async function copy() {
     setCopied(await copyText(full));
@@ -75,17 +78,26 @@ function NoteCard({ n, onChange }: { n: LinkedInNote; onChange: (n: LinkedInNote
         </a>
       </div>
 
+      <div className="segmented" aria-label="Message format">
+        <button className={mode === "message" ? "active" : ""} onClick={() => setMode("message")}>
+          Message with links
+        </button>
+        <button className={mode === "connection" ? "active" : ""} onClick={() => setMode("connection")}>
+          Connection note
+        </button>
+      </div>
       <label className="note-greeting">
         <span>Hi</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="their first name" />
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="first name (optional)" />
         <span>,</span>
       </label>
       <textarea className="note-text" value={body} onChange={(e) => setBody(e.target.value)} rows={4} />
+      {mode === "message" && links && <p className="muted small" style={{ whiteSpace: "pre-wrap" }}>{links}</p>}
 
       <div className="row-between">
         <div className="row actions">
-          <button className="btn btn-primary" onClick={copy} disabled={over}>
-            {copied === true ? "Copied" : copied === false ? "Copy failed - select the text" : "Copy note"}
+          <button className="btn btn-primary" onClick={copy} disabled={over || !body.trim()}>
+            {copied === true ? "Copied" : copied === false ? "Copy failed - select the text" : mode === "message" ? "Copy message" : "Copy note"}
           </button>
           {n.status !== "sent" && (
             <button className="btn" disabled={busy} onClick={() => set("sent")}>
@@ -109,7 +121,7 @@ function NoteCard({ n, onChange }: { n: LinkedInNote; onChange: (n: LinkedInNote
           )}
         </div>
         <span className={`counter ${over ? "text-bad" : "muted"}`}>
-          {full.length} / {n.max_chars}
+          {mode === "connection" ? `${full.length} / ${n.max_chars}` : `${full.length} characters`}
         </span>
       </div>
     </article>
@@ -137,8 +149,8 @@ export default function LinkedIn() {
         ))}
       </div>
       <p className="muted small">
-        Open the company, pick a recruiter or the hiring manager, type their first name here, copy the note into
-        "Add a note" on the connection request.
+        Copy the message and send it on LinkedIn. Your resume and portfolio links are included.
+        Add their first name if you'd like. For an invitation, switch to Connection note.
       </p>
       <Loading error={error} loading={loading && !data} />
       {data && data.length === 0 && <Empty>Nothing here.</Empty>}

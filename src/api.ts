@@ -127,6 +127,8 @@ export interface LinkedInNote {
   status_changed_at: string | null;
   llm_provider: string | null;
   max_chars: number;
+  resume_url: string;
+  portfolio_url: string;
   company_url: string;
   people_url: string;
   company_page_known: boolean;
